@@ -42,20 +42,50 @@
 
 .. sectnum::
 
-.. TODO: Delete the note below before merging new content to the master branch.
+Incident summary
+================
 
-.. note::
+Leadup
+======
 
-   **This technote is not yet published.**
+Fault
+=====
 
-   High packet loss impacting TCP throughput was observed starting on 2020-05-21.
+Impact
+======
 
-.. Add content here.
-.. Do not include the document title (it's automatically added from metadata.yaml).
+Detection
+=========
 
-.. .. rubric:: References
+Response
+========
 
-.. Make in-text citations with: :cite:`bibkey`.
+Recovery
+========
 
-.. .. bibliography:: local.bib lsstbib/books.bib lsstbib/lsst.bib lsstbib/lsst-dm.bib lsstbib/refs.bib lsstbib/refs_ads.bib
-..    :style: lsst_aa
+Timeline
+========
+
+TEMPLATE:
+
+XX:XX UTC - INCIDENT ACTIVITY; ACTION TAKEN
+
+XX:XX UTC - INCIDENT ACTIVITY; ACTION TAKEN
+
+XX:XX UTC - INCIDENT ACTIVITY; ACTION TAKEN
+Root cause identification: The Five Whys
+
+Root cause
+==========
+
+Backlog check
+==============
+
+Recurrence
+==========
+
+Lessons learned
+===============
+
+Corrective actions
+==================
