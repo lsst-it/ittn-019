@@ -18,6 +18,8 @@ doc_title: "LHN Postmortem #1"
 # Author names, ordered as a list. Each author name should be formatted as 'First Last'
 authors:
   - "Joshua Hoblitt"
+  - "Renata Frez"
+  - "Matt Kollross"
 
 # Current document revision date, YYYY-MM-DD
 # Only set this field if you need to manually fix the revision date;
