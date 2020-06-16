@@ -203,15 +203,10 @@ Timeline
 Root cause
 ==========
 
-* Configuration problems with the tunnel(s) through es.net caused significant packet loss.
+* Possible Packet loss on the backup circuit (vlan 312).  Unknown cause and can not replicate.
 * Properly tuning missing on comcam server.
+* Missing configuration on ESnet server caused some bandwidth restrictions around 10Gbps.
 
-Backlog check
-==============
-
-If the planned starlight/NCSA perfSonar nodes was operational and part of a
-maddash grid this problem would have been caught closer to the time of the
-fault.
 
 Recurrence
 ==========
