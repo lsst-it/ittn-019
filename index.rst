@@ -51,12 +51,18 @@ Incident summary
 ================
 
 High packet loss impacting TCP throughput was observed starting on 2020-05-21.
-The root cause was determined to be due to vlan312 (backup path) being used
-between ampath and starlight/NCSA. The primary path had experienced BGP
-Bi-direction Forwarding Detection (BFD) failures on vlan311 (primary path)
-which caused the routes to flap (XXX what was the cause of the BFD failures?)
-on vlan311 (primary path).  Manually flapping the routes to prefer vlan311
-solved the high packet loss / poor TCP performance.
+The LHN had previously been tested by Ampath, ESnet, and NCSA engineers using
+the performance tools between a DTN at La Serena and a DTN at NCSA.  During
+that testing period, engineers were able to determine the nuances of the tools
+being used (iperf3) and the underlying hardware.  This allowed engineers to
+properly tune the DTN servers, as well as TCP/UDP settings on the testing tools
+to obtain the highest throughput possible.   During this initial testing we
+determined that the QOS on the 2x20 Gbps links provided by ESnet caused varying
+degrees of packet loss and throughput bandwidth of the tests.  During those
+tests we were observing around 10Gbps of throughput in a theoretical 20Gbps
+link.   After further testing, configurations were found that resolved this
+issue and we were able to fully maximize the links fully.  These results were
+documented as part of the network baseline.
 
 Leadup
 ======
@@ -70,7 +76,6 @@ is expected to be grossly similar over commodity and the LHN as the latency is
 roughly equivalent.  This testing was done as a final check that there were no
 major problems with the hosts network configuration and in preparation to done
 some basic TCP/IP parameter tuning the following day.
-
 
 Fault
 =====
@@ -116,14 +121,14 @@ the TCP throughput had dropped to < 2mbit/s.
   Lost/Total Datagrams
   [  4]   0.00-60.00  sec  6.98 GBytes   999 Mbits/sec  0.016 ms 58791/840532 (7%)
   [  4] Sent 840532 datagrams
-
   iperf Done.
 
 Impact
 ======
 
 As there were no on going attempts to move large quantity of data primarily
-TCP/IP tuning efforts were disrupted.  However, the upcoming Ops Rehearsal, which at that time was planned to start June 1st, would have been disrupted.
+TCP/IP tuning efforts were disrupted.  However, the upcoming Ops Rehearsal,
+which at that time was planned to start June 1st, would have been disrupted.
 
 Detection
 =========
@@ -141,25 +146,43 @@ channel on Friday, 2020-06-22.  As this was the day prior to a US 3-day holiday
 weekend, email to the ``lsst-net@lists.lsst.org`` mailing list was intentional
 withheld until Tuesday, 2020-06-26.  Multiple members of the Chilean IT team
 ran ``iperf`` tests periodically over the holiday weekend and did not observed
-a significant change in behavior.
-
-Shortly after email notification went out, several members of the LHN team
-began coordinated debugging efforts via email and slack.
+a significant change in behavior.  Shortly after email notification went out,
+several members of the LHN team began coordinated debugging efforts via email
+and slack.
 
 Recovery
 ========
 
-The problem was effectively resolved on 2020-06-26 by forcing vlan311 to be the
-preferred route.  The path was manually switched back vlan312 on -27 and -28
-for additional testing.  The ultimate resolution was adjusting the parameters
-on the VPLS tunnel(s) through es.net.
+During the process of adding additional servers to the LHN, LSST IT admins were
+performing speed tests using iperf3 between the BDC located in La Serena, to a
+server located at NCSA in Urbana Illinois. During the initial testing, packet
+loss, and low transfer rates were reported. After further investigation, a lack
+of tuning on the servers seemed to be a direct cause of the packet loss. The
+lack of tuning was causing packets/frames to be dropped inside of the server
+and network interface before they were being sent out onto the LHN. After
+proper tuning (increasing various buffer sizes, and adjusting the testing
+software) this resolved most issues.
 
-XXX Is vlan312 now is a good working state?
+When the problem was first discovered, it was decided to use the existing DTN
+that engineers had previously used to baseline the circuits. This was to go
+back to the original baseline to see if the performance of the LHN had in fact
+changed. Using those DTN, engineers were able to observe that there was in fact
+a deterioration of performance when performing the tests.  After further
+investigation it was determined that the DTN had been reconfigured by LSST IT
+and many of the previous tuning parameters had been reset.  Once this was
+corrected we were able to continue testing with the DTN.  While performance
+improved engineers were still seeing lower than expected performance.
+
+The final issue was that was uncovered revolved around the ESnet router.  An
+ESnet router was recently replaced in Chicago.  During this replacement, the
+tuning parameters that had previously been applied by ESnet engineers were not
+applied to the new router.  This caused some variability in the testing
+results, once all the DTN had been properly configured.  Once the configuration
+was applied to the ESnet router, results returned back to the original baseline
+as expected.
 
 Timeline
 ========
-
-TEMPLATE:
 
 2020-05-22 - degraded TCP performance observed; ``#rubinos-lhn`` notified
 
@@ -173,7 +196,7 @@ TEMPLATE:
 
 2020-05-26 - ampath <-> starlight path reverted to vlan311
 
-2020-05-27 - switched to vlan312 for testing; percussive maintenance on routers
+2020-05-27 - switched to vlan312 for testing; percussive maintenance on routers; comcam server tuning
 
 2020-05-28 - additional network testing
 
@@ -181,12 +204,14 @@ Root cause
 ==========
 
 * Configuration problems with the tunnel(s) through es.net caused significant packet loss.
-* The primary path via vlan311 failed over to vlan312, which was visible via ``traceroute``, went undetected or was not noted to be significant.
+* Properly tuning missing on comcam server.
 
 Backlog check
 ==============
 
-If the planned starlight/NCSA perfSonar nodes was operational and part of a maddash grid this problem would have been caught closer to the time of the fault.
+If the planned starlight/NCSA perfSonar nodes was operational and part of a
+maddash grid this problem would have been caught closer to the time of the
+fault.
 
 Recurrence
 ==========
@@ -202,5 +227,18 @@ Lessons learned
 * automated monitoring of the path may be helpful
 * a formal postmortem process needs to be identified
 
-Corrective actions
-==================
+Recommendations
+===============
+
+Reproducible tests are required for network validation and monitoring.  The
+DTNs should be well documented with any tuning parameters that are applied to
+the servers and a change log should be kept when any changes do occur to the
+system.  Also well documented testing procedures should exists for that exact
+tests that are to be run (scripts, with documented CLI parameters should kept).
+This allows engineers who are not familiar with previous testing, to run the
+same scripts and allow for a more rigorous testing procedure.  Continuous
+performance testing using PerfSonar should also be implemented to create a
+baseline of the network and constant testing against that base line should be
+performed.  This also allows engineers to test from various points in the
+network to help isolate the problem.  This is planned, but at this time not
+implemented fully yet.
